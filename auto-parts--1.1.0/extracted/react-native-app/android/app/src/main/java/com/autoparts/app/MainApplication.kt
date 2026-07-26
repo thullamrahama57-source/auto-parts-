@@ -15,10 +15,14 @@ class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
       object : DefaultReactNativeHost(this) {
-        override fun getPackages(): List<ReactPackage> =
-            PackageList(this).packages.apply {
-              // Packages that cannot be autolinked yet can be added manually here
-            }
+        override fun getPackages(): List<ReactPackage> {
+          return try {
+            PackageList(this).packages
+          } catch (error: Throwable) {
+            android.util.Log.e("AutoParts", "Package list initialization failed", error)
+            emptyList()
+          }
+        }
 
         override fun getJSMainModuleName(): String = "index"
 
@@ -33,9 +37,14 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    android.util.Log.d("AutoParts", "MainApplication starting")
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-      load()
+      try {
+        load()
+      } catch (error: Throwable) {
+        android.util.Log.e("AutoParts", "New architecture initialization failed", error)
+      }
     }
   }
 }
